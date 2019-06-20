@@ -1,4 +1,4 @@
-from io import StringIO
+from io import StringIO, BytesIO
 import sys
 try:
     # Python 3
@@ -7,7 +7,7 @@ try:
     # Convert bytes to str, if required
     def convert_str(s):
         return s.decode('utf-8') if isinstance(s, bytes) else s
-except:
+except Exception:
     # Python 2
     from urllib import urlencode
 
@@ -43,6 +43,10 @@ class StartResponse:
 
 
 def environ(event, context):
+    body = b''
+    str_body = event.get('body')
+    if str_body:
+        body = bytes(str_body, 'utf-8')
     environ = {
         'REQUEST_METHOD': event['httpMethod'],
         'SCRIPT_NAME': '',
@@ -55,7 +59,7 @@ def environ(event, context):
         'HTTP': 'on',
         'SERVER_PROTOCOL': 'HTTP/1.1',
         'wsgi.version': (1, 0),
-        'wsgi.input': StringIO(event.get('body')),
+        'wsgi.input': BytesIO(body),
         'wsgi.errors': sys.stderr,
         'wsgi.multithread': False,
         'wsgi.multiprocess': False,
