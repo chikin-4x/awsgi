@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from io import StringIO
+from io import BytesIO
 import sys
 import unittest
 try:
@@ -57,7 +57,7 @@ class TestAwsgi(unittest.TestCase):
             'HTTP': 'on',
             'SERVER_PROTOCOL': 'HTTP/1.1',
             'wsgi.version': (1, 0),
-            'wsgi.input': StringIO(event['body']),
+            'wsgi.input': BytesIO(bytes(event['body'], 'utf-8')),
             'wsgi.errors': sys.stderr,
             'wsgi.multithread': False,
             'wsgi.multiprocess': False,
@@ -77,6 +77,6 @@ class TestAwsgi(unittest.TestCase):
             'awsgi.context': context
         }
         result = awsgi.environ(event, context)
-        self.addTypeEqualityFunc(StringIO, self.compareStringIOContents)
+        self.addTypeEqualityFunc(BytesIO, self.compareStringIOContents)
         for k, v in result.items():
             self.assertEqual(v, expected[k])
