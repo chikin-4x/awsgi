@@ -45,7 +45,6 @@ class StartResponse:
 
 def environ(event, context):
     body = event.get("body", "") or ""
-    body_bytes = bytes(body, "utf-8")
     if event.get("isBase64Encoded", False):
         body = b64decode(body)
     else:
@@ -58,7 +57,7 @@ def environ(event, context):
         'PATH_INFO': event['path'],
         'QUERY_STRING': urlencode(event['queryStringParameters'] or {}),
         'REMOTE_ADDR': '127.0.0.1',
-        'CONTENT_LENGTH': str(len(body_bytes)),
+        'CONTENT_LENGTH': str(len(body)),
         'HTTP': 'on',
         'SERVER_PROTOCOL': 'HTTP/1.1',
         'wsgi.version': (1, 0),
