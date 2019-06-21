@@ -45,7 +45,7 @@ class StartResponse:
 
 def environ(event, context):
     body = event.get("body", "") or ""
-    body_bytes = bytes(body)
+    body_bytes = bytes(body, "utf-8")
     if event.get("isBase64Encoded", False):
         body = b64decode(body)
     else:
