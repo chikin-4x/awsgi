@@ -1,4 +1,5 @@
 from io import StringIO, BytesIO
+from base64 import b64decode
 import sys
 try:
     # Python 3
@@ -43,10 +44,11 @@ class StartResponse:
 
 
 def environ(event, context):
-    body = b''
-    str_body = event.get('body')
-    if str_body:
-        body = bytes(str_body, 'utf-8')
+    body = event.get("body", "") or ""
+    if event.get("isBase64Encoded", False):
+        body = b64decode(body)
+    else:
+        body = body.encode("utf-8")
     environ = {
         'REQUEST_METHOD': event['httpMethod'],
         'SCRIPT_NAME': '',
@@ -55,7 +57,7 @@ def environ(event, context):
         'PATH_INFO': event['path'],
         'QUERY_STRING': urlencode(event['queryStringParameters'] or {}),
         'REMOTE_ADDR': '127.0.0.1',
-        'CONTENT_LENGTH': str(len(event.get('body', '') or '')),
+        'CONTENT_LENGTH': str(len(body)),
         'HTTP': 'on',
         'SERVER_PROTOCOL': 'HTTP/1.1',
         'wsgi.version': (1, 0),
