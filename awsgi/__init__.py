@@ -50,7 +50,7 @@ class StartResponse:
 def environ(event, context):
     body = event.get("body", "") or ""
 
-    LOG.info(f'size {}', len(body))
+    LOG.info(f'size {len(body)}')
 
     if event.get("isBase64Encoded", False):
         try:
@@ -60,7 +60,7 @@ def environ(event, context):
     else:
         body = body.encode("utf-8")
 
-    LOG.info(f'size after {}', len(body))
+    LOG.info(f'size after {len(body)}')
 
     environ = {
         'REQUEST_METHOD': event['httpMethod'],
