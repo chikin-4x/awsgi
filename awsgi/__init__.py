@@ -1,6 +1,10 @@
 from io import StringIO, BytesIO
 from base64 import b64decode
 import sys
+import logging
+
+LOG = logging.getLogger(__name__)
+
 try:
     # Python 3
     from urllib.parse import urlencode
@@ -45,10 +49,19 @@ class StartResponse:
 
 def environ(event, context):
     body = event.get("body", "") or ""
+
+    LOG.info(f'size {}', len(body))
+
     if event.get("isBase64Encoded", False):
-        body = b64decode(body)
+        try:
+            body = b64decode(body)
+        except Exception:
+            pass
     else:
         body = body.encode("utf-8")
+
+    LOG.info(f'size after {}', len(body))
+
     environ = {
         'REQUEST_METHOD': event['httpMethod'],
         'SCRIPT_NAME': '',
