@@ -1,5 +1,10 @@
 from io import StringIO, BytesIO
+from base64 import b64decode
 import sys
+import logging
+
+LOG = logging.getLogger(__name__)
+
 try:
     # Python 3
     from urllib.parse import urlencode
@@ -43,10 +48,20 @@ class StartResponse:
 
 
 def environ(event, context):
-    body = b''
-    str_body = event.get('body')
-    if str_body:
-        body = bytes(str_body, 'utf-8')
+    body = event.get("body", "") or ""
+
+    LOG.info(f'size {len(body)}')
+
+    if event.get("isBase64Encoded", False):
+        try:
+            body = b64decode(body)
+        except Exception:
+            pass
+    else:
+        body = body.encode("utf-8")
+
+    LOG.info(f'size after {len(body)}')
+
     environ = {
         'REQUEST_METHOD': event['httpMethod'],
         'SCRIPT_NAME': '',
@@ -55,7 +70,7 @@ def environ(event, context):
         'PATH_INFO': event['path'],
         'QUERY_STRING': urlencode(event['queryStringParameters'] or {}),
         'REMOTE_ADDR': '127.0.0.1',
-        'CONTENT_LENGTH': str(len(event.get('body', '') or '')),
+        'CONTENT_LENGTH': str(len(body)),
         'HTTP': 'on',
         'SERVER_PROTOCOL': 'HTTP/1.1',
         'wsgi.version': (1, 0),
